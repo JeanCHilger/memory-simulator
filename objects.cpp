@@ -1,13 +1,25 @@
 #include <bits/stdc++.h>
 
+#define BOLD_BLACK "\e[1;90m"
+#define BOLD_WHITE "\e[1;37m"
+
+#define BOLD_RED "\e[1;31m"
+#define BOLD_GREEN "\e[1;92m"
+#define BOLD_YELLOW "\e[1;93m"
+#define BOLD_BLUE "\e[1;94m"
+
+#define END "\e[0m"
+
+// printf(COLOR"stuff"END);
+
 struct cell {
     /*
      * Represents a cell memory.
      * */
 
-    char offset[2];
+    int offset;
 
-    char value[8];
+    int value;
 };
 
 typedef struct cell Cell;
@@ -17,7 +29,7 @@ struct block {
      * Address = block + values[i].offset.
      * */
 
-    char blockNumber[5];
+    int blockNumber;
 
     Cell values[4];
 };
@@ -29,16 +41,16 @@ struct row {
      * Address = tag + number + values[i].offset.
      * */
 
-    char tag[2];
-    char rowNumber[3];
+    int tag;
+    int rowNumber;
 
     Cell values[4];
 };
 
 typedef struct row Row;
 
-
 class PrimaryMemory {
+
     /*
      * Represents a primary memory.
      * Stores the data.
@@ -58,19 +70,16 @@ class PrimaryMemory {
 
         }
 
-        char * getData(int address) {
+        int getData(int address) {
             /*
              * Returns the data located at the given address.
              *
              * Parameters: addres -> int
-             * Return    : value -> char *
+             * Return    : value -> int
              * */
 
             int blockNumber = address % this -> BLOCKS;
-            int offset = address % this -> BLOCK_SIZE;
-
-            //Block block = this -> memory[blockNumber];
-            //Cell cell = block.values[offset];
+            int offset = address / this -> BLOCKS;
 
             return this -> memory[blockNumber].values[offset].value;
         }
@@ -85,31 +94,31 @@ class PrimaryMemory {
              * */
 
             int blockNumber = address % this -> BLOCKS;
-            int offset = address % this -> BLOCK_SIZE;
+            int offset = address / this -> BLOCKS;
 
-            strncpy(this -> memory[blockNumber].values[offset].value, 
-                    "0000000", 
-                    sizeof(this -> memory[blockNumber].values[offset].value) - 1);
-
-            this -> memory[blockNumber].values[offset].value[sizeof(this -> memory[blockNumber].values[offset].value) - 1] = 0;
+            this -> memory[blockNumber].values[offset].value = value;
         }
 
         void printAllData () {
             for (int i=0; i < 128; i++) {
-                printf("at %d -> %s\n", i, this -> getData(i));
+                printf("at %d -> %d\n", i, this -> getData(i));
             }
         }
 
     private:
+
         Block memory[32];
+
         const int BLOCKS = 32;
         const int BLOCK_SIZE = 4;
         const int CELLS = 128;
-    
+
 };
 
 class CacheMemory {
+
     /*
+     * Represents the cache memory.
      * */
 
     public:
@@ -118,48 +127,68 @@ class CacheMemory {
 
         }
 
-        char * getData(int address) {
+        bool isDataIn (int address) {
             /*
-             * Returns the data located at the given address.
+             * Returns whether the given addres is within
+             * cache memory or not.
              *
-             * Parameters: addres -> int
-             * Return    : value -> char *
+             * Parameters: address -> int
+             * Return    : bool
              * */
 
             int blockNumber = address % this -> PM_BLOCKS;
             int rowNumber = blockNumber % this -> ROWS;
             int offset = address % this -> ROW_SIZE;
 
-            //Block block = this -> memory[blockNumber];
-            //Cell cell = block.values[offset];
-
             Row row = this -> memory[rowNumber];
             int tag = blockNumber - rowNumber;
 
-            // hit
-            if (row.tag == "10"/*decimalToBinary(tag)*/) {
-                return this -> memory[rowNumber].values[offset];
-            // miss
+            if (row.tag == tag) {
+                return true;
+
             } else {
-
+                return false;
             }
-            
-         }
+        }
 
+        int getData(int address) {
+            /*
+             * Returns the data located at the given address.
+             *
+             * Parameters: addres -> int
+             * Return    : value -> int
+             * */
+
+            int blockNumber = address % this -> PM_BLOCKS;
+            int rowNumber = blockNumber % this -> ROWS;
+            int offset = address % this -> ROW_SIZE;
+
+            return this -> memory[rowNumber].values[offset].value;
+        }
+
+        void insertData(int address, int value) {
+            /*
+             * Inserts the given value in the given address.
+             *
+             * Parameters: addres -> int
+             *             value  -> int
+             * Return:     none
+             * */
+
+            int blockNumber = address % this -> PM_BLOCKS;
+            int rowNumber = blockNumber % this -> ROWS;
+            int offset = address % this -> ROW_SIZE;
+
+            this -> memory[rowNumber].values[offset].value = value;
+        }
 
     private:
+
         Row memory[8];
+
         const int ROWS = 8;
         const int ROW_SIZE = 4;
         const int CELLS = 32;
         const int PM_BLOCKS = 32;
 
 };
-
-int main () {
-    PrimaryMemory mp;
-
-    mp.printAllData();
-
-    return 0;
-}
