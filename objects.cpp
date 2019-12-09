@@ -115,7 +115,7 @@ class PrimaryMemory {
              * */
 
             printf(BOLD_WHITE "\n\t" END);
-                printf(BOLD_YELLOW "\t\t        PRIMARY MEMORY" END);
+                printf(BOLD_YELLOW "\t\t      .:PRIMARY MEMORY:." END);
                 printf(BOLD_WHITE" \n" END);
 
             printf(BOLD_WHITE "\t+---------------------------------------------------------------+\n" END);
@@ -229,7 +229,7 @@ class CacheMemory {
                 int rowNumber = blockNumber % this -> ROWS;
 
                 Row row = this -> memory[rowNumber];
-                int tag = blockNumber - rowNumber;
+                int tag = blockNumber / this -> ROWS;
 
                 if (row.tag == tag) {
                     return true;
@@ -305,7 +305,7 @@ class CacheMemory {
              * */
 
             printf(BOLD_WHITE "\n\t " END);
-                printf(BOLD_YELLOW "\t\t\t      CACHE MEMORY" END);
+                printf(BOLD_YELLOW "\t\t\t    .:CACHE MEMORY:." END);
                 printf(BOLD_WHITE" \n" END);
 
             printf(BOLD_WHITE "\t+----------------------------------------------------------------------+\n" END);
@@ -454,11 +454,13 @@ class MemoryManager {
 
             if (this -> cacheMemory.isDataIn(address)) {
                 this -> loadHits += 1;
+                this -> lastLoadHit = true;
 
                 return this -> cacheMemory.getData(address);
 
             } else {
                 this -> loadMisses += 1;
+                this -> lastLoadHit = false;
 
                 int value = this -> primaryMemory.getData(address);
                 Block block = this -> primaryMemory.getBlock(address);
@@ -477,17 +479,43 @@ class MemoryManager {
 
             if (this -> cacheMemory.isDataIn(address)) {
                 this -> storeHits += 1;
+                this -> lastStoreHit = true;
 
                 this -> cacheMemory.updateValue(address, value);
 
             } else {
                 this -> storeMisses += 1;
+                this -> lastStoreHit = false;
 
                 Block block = this -> primaryMemory.getBlock(address);
                 this -> cacheMemory.insertBlock(address, block);
             }
 
             this -> primaryMemory.insertData(address, value);
+        }
+
+        bool hitLoad() {
+            /*
+             * Returns true if last load was a hit,
+             * and false if was a miss.
+             *
+             * Parameters: none
+             * Return    : bool
+             * */
+
+            return this -> lastLoadHit;
+        }
+
+        bool hitStore() {
+            /*
+             * Returns true if last store was a hit,
+             * and false if was a miss.
+             *
+             * Parameters: none
+             * Return    : bool
+             * */
+
+            return this -> lastStoreHit;
         }
 
         void showCacheMemory() {
@@ -511,7 +539,7 @@ class MemoryManager {
             printf(BOLD_WHITE "\t+---------------------------------------+" END);
 
             printf(BOLD_WHITE "\n\t|" END);
-                printf(BOLD_YELLOW "\t\tSTATISTICS" END);
+                printf(BOLD_YELLOW "\t     .:STATISTICS:." END);
                 printf(BOLD_WHITE "\t\t|\n" END);
 
             printf(BOLD_WHITE "\t|" END);
@@ -538,14 +566,14 @@ class MemoryManager {
                         "......."
                         NORMAL_GREEN " %*d (%6.2f%%)"
                         BOLD_WHITE "|\n" END, 4, loadHits,
-                            (double) (loads ? loadHits * 100 / loads : 0));
+                            (loads ? (double) loadHits * 100 / loads : 0));
 
                 int loadMisses = this -> getLoadMisses();
                 printf(BOLD_WHITE "\t|" END NORMAL_RED "\tLoad misses " END
                         "....."
                         NORMAL_RED " %*d (%6.2f%%)"
                         BOLD_WHITE "|\n" END, 4, loadMisses, 
-                            (double) (loads ? loadMisses * 100 / loads : 0));
+                            (loads ? (double) loadMisses * 100 / loads : 0));
 
             printf(BOLD_WHITE "\t|"
                     BOLD_BLACK "---------------------------------------"
@@ -562,14 +590,14 @@ class MemoryManager {
                         "......"
                         NORMAL_GREEN " %*d (%6.2f%%)"
                         BOLD_WHITE "|\n" END, 4, storeHits,
-                            (double) (stores ? storeHits * 100 / stores : 0));
+                            (stores ? (double) storeHits * 100 / stores : 0));
 
                 int storeMisses = this -> getStoreMisses();
                 printf(BOLD_WHITE "\t|" END NORMAL_RED "\tStore misses " END
                         "...."
                         NORMAL_RED " %*d (%6.2f%%)"
                         BOLD_WHITE "|\n" END, 4, storeMisses,
-                            (double) (stores ? storeMisses * 100 / stores : 0));
+                            (stores ? (double) storeMisses * 100 / stores : 0));
 
 
             printf(BOLD_WHITE "\t+---------------------------------------+\n" END);
@@ -587,6 +615,9 @@ class MemoryManager {
         int loadHits;
         int storeMisses;
         int storeHits;
+
+        bool lastLoadHit;
+        bool lastStoreHit;
 
 };
 
@@ -681,6 +712,15 @@ int main() {
                 value = mm.load(address);
                 printf("Read value: ");
                 printDecAsBinary(value, 8);
+                printf("\n\t");
+                
+                if (mm.hitLoad()) {
+                    printf(BOLD_GREEN "hit" END);
+                
+                } else {
+                    printf(BOLD_RED "missed" END);
+                }
+                
                 printf("\n");
 
                 break;
@@ -706,6 +746,16 @@ int main() {
                 scanf(" %d", &value);
 
                 mm.store(address, value);
+                
+                printf("\t");
+                if (mm.hitStore()) {
+                    printf(BOLD_GREEN "hit" END);
+                
+                } else {
+                    printf(BOLD_RED "missed" END);
+                }
+
+                printf("\n");
 
                 break;
 
