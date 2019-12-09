@@ -251,8 +251,6 @@ class CacheMemory {
             int rowNumber = blockNumber % this -> ROWS;
             int offset = address % this -> ROW_SIZE;
 
-            printf("blok %d - row %d:  tag %d\n", blockNumber, rowNumber, blockNumber - rowNumber);
-
             return this -> memory[rowNumber].values[offset].value;
         }
 
@@ -292,10 +290,8 @@ class CacheMemory {
                 this -> memory[rowNumber].values[i].offset = block.values[i].offset;
             }
 
-            printf("blok %d - row %d:  tag %d\n", blockNumber, rowNumber, blockNumber - rowNumber);
-
             this -> memory[rowNumber].rowNumber = rowNumber;
-            this -> memory[rowNumber].tag = blockNumber - rowNumber;
+            this -> memory[rowNumber].tag = blockNumber / this -> ROWS;
             this -> memory[rowNumber].valid = 1;
         }
 
@@ -687,7 +683,6 @@ int main() {
                  * Show block and row numbers;
                  * */
 
-                printf(BOLD_RED "SEU MERDA NÃO CONSEGUE NEM FAZER UMA CONTINHA DE BOSTA.\n" END);
                 printf(BOLD_WHITE "Enter address: " END);
                 scanf(" %d", &address);
 
