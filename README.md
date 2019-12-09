@@ -16,3 +16,6 @@ Cache Memory: 16 bytes
 
 * Replacement policy: direct mapping;
 * Writting policy: writte once;
+
+## Running
+Run the command `make run` or simply `make`
