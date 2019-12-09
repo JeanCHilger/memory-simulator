@@ -3,14 +3,21 @@
 
 using namespace std;
 
-char *decimalToBinary (int value) {
+char *decimalToBinary (int value, int binLength=false) {
     /*
      * */
 
     char *res = (char *)malloc(9 * sizeof(char));;
     int rem;
+    int length;
 
-    int length = value > 1 ? ceil(log2(value)) : 1;
+    if (!binLength) {
+        length = value > 1 ? ceil(log2(value)) : 1;
+
+    } else {
+        length = binLength;
+    }
+
     res[length] = 0;
 
     int i = length - 1;
@@ -25,15 +32,17 @@ char *decimalToBinary (int value) {
     return res;
 }
 
-void printBinary (int value) {
+void printDecAsBinary (int value, int length=false) {
     /*
      * */
 
-    char *bin = decimalToBinary(value);
+    char *bin = decimalToBinary(value, length);
 
     for (int i = 0; i < (int) sizeof(bin); i++) {
-        printf("%c", bin[i]);
+        printf(BOLD_WHITE "%c" END, bin[i]);
     }
 
-    printf("\n");
+    //printf("\n");
 }
+
+//void printBinary
