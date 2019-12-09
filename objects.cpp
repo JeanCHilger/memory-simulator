@@ -527,39 +527,49 @@ class MemoryManager {
                     BOLD_BLACK "---------------------------------------"
                     BOLD_WHITE "|\n" END);
 
+            int loads = this -> getLoads();
             printf(BOLD_WHITE "\t| Load quantity " END
                     "................."
                     BOLD_YELLOW " %*d "
-                    BOLD_WHITE "|\n" END, 5, this -> getLoads());
+                    BOLD_WHITE "|\n" END, 5, loads);
 
+                int loadHits = this -> getLoadHits();
                 printf(BOLD_WHITE "\t|" END NORMAL_GREEN "\tLoad hits " END
-                        "..............."
-                        NORMAL_GREEN " %*d "
-                        BOLD_WHITE "|\n" END, 5, this -> getLoadHits());
+                        "......."
+                        NORMAL_GREEN " %*d (%6.2f%%)"
+                        BOLD_WHITE "|\n" END, 4, loadHits,
+                            (double) (loads ? loadHits * 100 / loads : 0));
 
+                int loadMisses = this -> getLoadMisses();
                 printf(BOLD_WHITE "\t|" END NORMAL_RED "\tLoad misses " END
-                        "............."
-                        NORMAL_RED " %*d "
-                        BOLD_WHITE "|\n" END, 5, this -> getLoadMisses());
+                        "....."
+                        NORMAL_RED " %*d (%6.2f%%)"
+                        BOLD_WHITE "|\n" END, 4, loadMisses, 
+                            (double) (loads ? loadMisses * 100 / loads : 0));
 
             printf(BOLD_WHITE "\t|"
                     BOLD_BLACK "---------------------------------------"
                     BOLD_WHITE "|\n" END);
 
+            int stores = this -> getStores();
             printf(BOLD_WHITE "\t| Store quantity " END
                     "................"
                     BOLD_YELLOW " %*d "
-                    BOLD_WHITE "|\n" END, 5, this -> getStores());
+                    BOLD_WHITE "|\n" END, 5, stores);
 
+                int storeHits = this -> getStoreHits();
                 printf(BOLD_WHITE "\t|" END NORMAL_GREEN "\tStore hits " END
-                        ".............."
-                        NORMAL_GREEN " %*d "
-                        BOLD_WHITE "|\n" END, 5, this -> getStoreHits());
+                        "......"
+                        NORMAL_GREEN " %*d (%6.2f%%)"
+                        BOLD_WHITE "|\n" END, 4, storeHits,
+                            (double) (stores ? storeHits * 100 / stores : 0));
 
+                int storeMisses = this -> getStoreMisses();
                 printf(BOLD_WHITE "\t|" END NORMAL_RED "\tStore misses " END
-                        "............"
-                        NORMAL_RED " %*d "
-                        BOLD_WHITE "|\n" END, 5, this -> getStoreMisses());
+                        "...."
+                        NORMAL_RED " %*d (%6.2f%%)"
+                        BOLD_WHITE "|\n" END, 4, storeMisses,
+                            (double) (stores ? storeMisses * 100 / stores : 0));
 
 
             printf(BOLD_WHITE "\t+---------------------------------------+\n" END);
